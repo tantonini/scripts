@@ -7,9 +7,9 @@ WT_HEIGHT=40
 WT_WIDTH=120
 WT_MENU_HEIGHT=20
 
-do_terminal_menu() {
+do_alacritty_menu() {
     while true; do
-        FUN=$(whiptail --title "System Configuration" --menu "Terminal setup" \
+        FUN=$(whiptail --title "System Configuration" --menu "Alacritty setup" \
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
               "1 Dummy" "dummy" \
@@ -19,6 +19,25 @@ do_terminal_menu() {
         if [ $RET -eq 1 ]; then
             return 0
         fi
+    done
+}
+
+do_terminal_menu() {
+    while true; do
+        FUN=$(whiptail --title "System Configuration" --menu "Terminal setup" \
+              "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
+              --cancel-button Return --ok-button Select -- \
+              "1 Alacritty" "- Alacritty configuration" \
+              3>&1 1>&2 2>&3)
+
+        RET=$?
+        if [ $RET -eq 1 ]; then
+            return 0
+        fi
+
+        case $FUN in
+            1\ *) do_alacritty_menu ;;
+        esac
     done
 }
 
