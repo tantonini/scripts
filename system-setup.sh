@@ -7,18 +7,92 @@ WT_HEIGHT=40
 WT_WIDTH=120
 WT_MENU_HEIGHT=20
 
+do_alacritty_install() {
+    ALACRITTY_VERSION=v0.5.0
+    if (whiptail --title "System Configuration" --yesno "Do you want to install Alacritty now?" \
+        "$WT_HEIGHT" "$WT_WIDTH"); then
+        if command -v alacritty > /dev/null; then
+            whiptail --title "System Configuration" --msgbox "Alacritty is already installed on the system" \
+            "$WT_HEIGHT" "$WT_WIDTH"
+
+            return 0
+        fi
+
+        echo ""
+        echo "Install dependencies to build Alacritty"
+        sudo apt-get install -y curl git cmake pkg-config libfreetype6-dev libfontconfig1-dev libxcb-xfixes0-dev python3 gzip
+        echo "Alacritty dependencies installed"
+
+        echo ""
+        echo "Install Rust compiler and cargo"
+        if ! command -v cargo rustup > /dev/null; then
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+            # shellcheck source=/dev/null
+            source "$HOME"/.cargo/env
+
+            echo "Rust compiler and cargo installed"
+        else
+            echo "Rust compiler and cargo already installed"
+        fi
+
+        mkdir -p "$HOME"/sources
+        cd "$HOME"/sources || (echo "Error: cannot cd $HOME/sources"; exit 1)
+
+        echo ""
+        echo "Get Alacritty sources"
+        if ! [[ -d alacritty ]]; then
+            git clone https://github.com/alacritty/alacritty.git
+        fi
+
+        cd alacritty || (echo "Error: cannot cd $HOME/sources"; exit 1)
+        git checkout "$ALACRITTY_VERSION"
+
+        echo ""
+        echo "Build and install Alacritty"
+        cargo build --release
+
+        echo ""
+        echo "Add desktop entries"
+        sudo cp target/release/alacritty /usr/local/bin
+        sudo cp extra/logo/alacritty-term.svg /usr/share/pixmaps/Alacritty.svg
+        sudo desktop-file-install extra/linux/Alacritty.desktop
+        sudo update-desktop-database
+
+        echo ""
+        echo "Add manual page"
+        sudo mkdir -p /usr/local/share/man/man1
+        gzip -c extra/alacritty.man | sudo tee /usr/local/share/man/man1/alacritty.1.gz > /dev/null
+
+        echo ""
+        echo "Alacritty $ALACRITTY_VERSION installed"
+
+        cd "$BASEDIR" || exit 1
+
+        whiptail --title "System Configuration" --msgbox "Alacritty $ALACRITTY_VERSION installed" \
+        "$WT_HEIGHT" "$WT_WIDTH"
+
+        return 0
+    else
+        return 1
+    fi
+}
+
 do_alacritty_menu() {
     while true; do
         FUN=$(whiptail --title "System Configuration" --menu "Alacritty setup" \
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
-              "1 Dummy" "dummy" \
+              "1 Install" "- Install Alacritty" \
               3>&1 1>&2 2>&3)
 
         RET=$?
         if [ $RET -eq 1 ]; then
             return 0
         fi
+
+        case $FUN in
+            1\ *) do_alacritty_install ;;
+        esac
     done
 }
 
