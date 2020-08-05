@@ -96,6 +96,21 @@ do_alacritty_menu() {
     done
 }
 
+do_dotfiles_menu() {
+    while true; do
+        FUN=$(whiptail --title "System Configuration" --menu "Dotfiles setup" \
+              "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
+              --cancel-button Return --ok-button Select -- \
+              "1 dummy" "- dummy" \
+              3>&1 1>&2 2>&3)
+
+        RET=$?
+        if [ $RET -eq 1 ]; then
+            return 0
+        fi
+    done
+}
+
 do_terminal_menu() {
     while true; do
         FUN=$(whiptail --title "System Configuration" --menu "Terminal setup" \
@@ -138,7 +153,8 @@ while true; do
     FUN=$(whiptail --title "System Configuration" --menu "Setup Options" \
           "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
           --cancel-button Finish --ok-button Select -- \
-          "1 Utilities" "- Install and config utilities (terminal, editor, etc...)" \
+          "1 Dotfiles" "- Configure dotfiles management"
+          "2 Utilities" "- Install and config utilities (terminal, editor, etc...)" \
           3>&1 1>&2 2>&3)
 
     RET=$?
@@ -147,7 +163,8 @@ while true; do
     fi
 
     case $FUN in
-        1\ *) do_utilities_menu ;;
+        1\ *) do_dotfiles_menu ;;
+        2\ *) do_utilities_menu ;;
     esac
 done
 
