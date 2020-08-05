@@ -96,18 +96,45 @@ do_alacritty_menu() {
     done
 }
 
+do_dotfiles_git_bare() {
+    if ! command -v dotfiles; then
+        echo "alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'" >> "$HOME"/.bash_aliases
+    fi
+
+    if [ -d "$HOME"/.dotfiles ]; then
+        whiptail --title "System Configuration" --msgbox "Dotfiles repository is already configured" \
+        "$WT_HEIGHT" "$WT_WIDTH"
+
+        return 0
+    fi
+
+    if ! command -v git > /dev/null; then
+        echo ""
+        echo "Install git"
+        sudo apt-get install -y git
+    fi
+
+    git clone --bare https://github.com/tantonini/dotfiles.git "$HOME"/.dotfiles
+    whiptail --title "System Configuration" --msgbox "Dotfiles repository configured" \
+    "$WT_HEIGHT" "$WT_WIDTH"
+}
+
 do_dotfiles_menu() {
     while true; do
         FUN=$(whiptail --title "System Configuration" --menu "Dotfiles setup" \
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
-              "1 dummy" "- dummy" \
+              "1 Git bare repo" "- Use git bare repository for managing dotfiles" \
               3>&1 1>&2 2>&3)
 
         RET=$?
         if [ $RET -eq 1 ]; then
             return 0
         fi
+
+        case $FUN in
+            1\ *) do_dotfiles_git_bare ;;
+        esac
     done
 }
 
@@ -153,7 +180,7 @@ while true; do
     FUN=$(whiptail --title "System Configuration" --menu "Setup Options" \
           "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
           --cancel-button Finish --ok-button Select -- \
-          "1 Dotfiles" "- Configure dotfiles management"
+          "1 Dotfiles" "- Configure dotfiles management" \
           "2 Utilities" "- Install and config utilities (terminal, editor, etc...)" \
           3>&1 1>&2 2>&3)
 
