@@ -143,6 +143,25 @@ do_editors_menu() {
         FUN=$(whiptail --title "System Configuration" --menu "Editors setup" \
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
+              "1 nvim" "- Install and configure neovim" \
+              3>&1 1>&2 2>&3)
+
+        RET=$?
+        if [ $RET -eq 1 ]; then
+            return 0
+        fi
+
+        case $FUN in
+            1\ *) do_nvim_menu ;;
+        esac
+    done
+}
+
+do_nvim_menu() {
+    while true; do
+        FUN=$(whiptail --title "System Configuration" --menu "Neovim menu" \
+              "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
+              --cancel-button Return --ok-button Select -- \
               "1 dummy" "- dummy" \
               3>&1 1>&2 2>&3)
 
