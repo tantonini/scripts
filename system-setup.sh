@@ -176,18 +176,38 @@ do_gui_menu() {
     done
 }
 
+do_i3_install() {
+    if command -v i3 > /dev/null; then
+        whiptail --title "System Configuration" --msgbox "i3-gaps is already installed on the system" \
+        "$WT_HEIGHT" "$WT_WIDTH"
+
+        return 0
+    fi
+
+    sudo add-apt-repository -y ppa:kgilmer/speed-ricer
+    sudo apt update
+    sudo apt-get install -y i3-gaps
+
+    whiptail --title "System Configuration" --msgbox "i3-gaps installed on the system" \
+    "$WT_HEIGHT" "$WT_WIDTH"
+}
+
 do_i3_menu() {
     while true; do
         FUN=$(whiptail --title "System Configuration" --menu "i3 wm setup" \
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
-              "1 dummy" "- dummy" \
+              "1 Install" "- Install i3-gaps" \
               3>&1 1>&2 2>&3)
 
         RET=$?
         if [ $RET -eq 1 ]; then
             return 0
         fi
+
+        case $FUN in
+            1\ *) do_i3_install ;;
+        esac
     done
 }
 
