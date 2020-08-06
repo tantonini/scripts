@@ -176,6 +176,21 @@ do_gui_menu() {
     done
 }
 
+do_i3_menu() {
+    while true; do
+        FUN=$(whiptail --title "System Configuration" --menu "i3 wm setup" \
+              "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
+              --cancel-button Return --ok-button Select -- \
+              "1 dummy" "- dummy" \
+              3>&1 1>&2 2>&3)
+
+        RET=$?
+        if [ $RET -eq 1 ]; then
+            return 0
+        fi
+    done
+}
+
 do_nvim_install() {
     if command -v nvim > /dev/null; then
         whiptail --title "System Configuration" --msgbox "Nvim is already installed on the system" \
@@ -259,13 +274,17 @@ do_wm_menu() {
         FUN=$(whiptail --title "System Configuration" --menu "Window manager setup" \
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
-              "1 dummy" "- dummy" \
+              "1 i3" "- i3 window manager setup" \
               3>&1 1>&2 2>&3)
 
         RET=$?
         if [ $RET -eq 1 ]; then
             return 0
         fi
+
+        case $FUN in
+            1\ *) do_i3_menu ;;
+        esac
     done
 }
 
