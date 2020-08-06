@@ -138,6 +138,21 @@ do_dotfiles_menu() {
     done
 }
 
+do_editors_menu() {
+    while true; do
+        FUN=$(whiptail --title "System Configuration" --menu "Editors setup" \
+              "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
+              --cancel-button Return --ok-button Select -- \
+              "1 dummy" "- dummy" \
+              3>&1 1>&2 2>&3)
+
+        RET=$?
+        if [ $RET -eq 1 ]; then
+            return 0
+        fi
+    done
+}
+
 do_terminal_menu() {
     while true; do
         FUN=$(whiptail --title "System Configuration" --menu "Terminal setup" \
@@ -162,7 +177,8 @@ do_utilities_menu() {
         FUN=$(whiptail --title "System Configuration" --menu "Utilities setup" \
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
-              "1 Terminal" "- Install and config terminal emulators" \
+              "1 Editors" "- Install and config editors" \
+              "2 Terminal" "- Install and config terminal emulators" \
               3>&1 1>&2 2>&3)
 
         RET=$?
@@ -171,7 +187,8 @@ do_utilities_menu() {
         fi
 
         case $FUN in
-            1\ *) do_terminal_menu ;;
+            1\ *) do_editors_menu ;;
+            2\ *) do_terminal_menu ;;
         esac
     done
 }
