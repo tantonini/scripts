@@ -157,18 +157,41 @@ do_editors_menu() {
     done
 }
 
+do_nvim_install() {
+    if command -v nvim > /dev/null; then
+        whiptail --title "System Configuration" --msgbox "Nvim is already installed on the system" \
+        "$WT_HEIGHT" "$WT_WIDTH"
+
+        return 0
+    fi
+
+    sudo apt-get install -y curl
+    mkdir -p "$HOME"/.local/bin
+    cd "$HOME"/.local/bin || return
+    curl -LO https://github.com/neovim/neovim/releases/download/stable/nvim.appimage
+    chmod u+x nvim.appimage
+    mv nvim.appimage nvim
+
+    whiptail --title "System Configuration" --msgbox "Nvim installed on the system" \
+    "$WT_HEIGHT" "$WT_WIDTH"
+}
+
 do_nvim_menu() {
     while true; do
         FUN=$(whiptail --title "System Configuration" --menu "Neovim menu" \
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
-              "1 dummy" "- dummy" \
+              "1 Install nvim" "- Install neovim editor" \
               3>&1 1>&2 2>&3)
 
         RET=$?
         if [ $RET -eq 1 ]; then
             return 0
         fi
+
+        case $FUN in
+            1\ *) do_nvim_install ;;
+        esac
     done
 }
 
