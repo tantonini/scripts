@@ -157,6 +157,21 @@ do_editors_menu() {
     done
 }
 
+do_gui_menu() {
+    while true; do
+        FUN=$(whiptail --title "System Configuration" --menu "Graphical user interface configuration" \
+              "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
+              --cancel-button Return --ok-button Select -- \
+              "1 dummy" "- dummy" \
+              3>&1 1>&2 2>&3)
+
+        RET=$?
+        if [ $RET -eq 1 ]; then
+            return 0
+        fi
+    done
+}
+
 do_nvim_install() {
     if command -v nvim > /dev/null; then
         whiptail --title "System Configuration" --msgbox "Nvim is already installed on the system" \
@@ -240,7 +255,8 @@ while true; do
           "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
           --cancel-button Finish --ok-button Select -- \
           "1 Dotfiles" "- Configure dotfiles management" \
-          "2 Utilities" "- Install and config utilities (terminal, editor, etc...)" \
+          "2 GUI" "- Configure graphical user interface" \
+          "3 Utilities" "- Install and config utilities (terminal, editor, etc...)" \
           3>&1 1>&2 2>&3)
 
     RET=$?
@@ -250,7 +266,8 @@ while true; do
 
     case $FUN in
         1\ *) do_dotfiles_menu ;;
-        2\ *) do_utilities_menu ;;
+        2\ *) do_gui_menu ;;
+        3\ *) do_utilities_menu ;;
     esac
 done
 
