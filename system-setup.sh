@@ -162,13 +162,17 @@ do_gui_menu() {
         FUN=$(whiptail --title "System Configuration" --menu "Graphical user interface configuration" \
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
-              "1 dummy" "- dummy" \
+              "1 WM" "- Window manager setup" \
               3>&1 1>&2 2>&3)
 
         RET=$?
         if [ $RET -eq 1 ]; then
             return 0
         fi
+
+        case $FUN in
+            1\ *) do_wm_menu ;;
+        esac
     done
 }
 
@@ -247,6 +251,21 @@ do_utilities_menu() {
             1\ *) do_editors_menu ;;
             2\ *) do_terminal_menu ;;
         esac
+    done
+}
+
+do_wm_menu() {
+    while true; do
+        FUN=$(whiptail --title "System Configuration" --menu "Window manager setup" \
+              "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
+              --cancel-button Return --ok-button Select -- \
+              "1 dummy" "- dummy" \
+              3>&1 1>&2 2>&3)
+
+        RET=$?
+        if [ $RET -eq 1 ]; then
+            return 0
+        fi
     done
 }
 
