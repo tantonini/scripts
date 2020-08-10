@@ -236,6 +236,7 @@ do_nvim_menu() {
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
               "1 Install nvim" "- Install neovim editor" \
+              "2 Install vim plug" "- Install neovim plugin manager" \
               3>&1 1>&2 2>&3)
 
         RET=$?
@@ -245,8 +246,24 @@ do_nvim_menu() {
 
         case $FUN in
             1\ *) do_nvim_install ;;
+            2\ *) do_nvim_vim_plug_install ;;
         esac
     done
+}
+
+do_nvim_vim_plug_install() {
+    if [ -f "$HOME"/.local/share/nvim/site/autoload/plug.vim ]; then
+        whiptail --title "System Configuration" --msgbox "Vim plug is already installed on the system" \
+        "$WT_HEIGHT" "$WT_WIDTH"
+
+        return 0
+    fi
+
+    sudo apt-get install -y curl
+    sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+
+    whiptail --title "System Configuration" --msgbox "Vim plug installed on the system" \
+    "$WT_HEIGHT" "$WT_WIDTH"
 }
 
 do_terminal_menu() {
