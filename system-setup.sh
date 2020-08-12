@@ -192,7 +192,7 @@ do_i3_config_dependencies_menu() {
         FUN=$(whiptail --title "System Configuration" --menu "i3 wm config dependencies setup" \
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
-              "1 dummy" "- dummy" \
+              "1 Install applets" "- Install system tray applets" \
               3>&1 1>&2 2>&3)
 
         RET=$?
@@ -200,6 +200,9 @@ do_i3_config_dependencies_menu() {
             return 0
         fi
 
+        case $FUN in
+            1\ *) do_applets_install ;;
+        esac
     done
 }
 
@@ -225,8 +228,7 @@ do_i3_menu() {
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
               "1 Install" "- Install i3-gaps" \
-              "2 Install applets" "- Install system tray applets" \
-              "3 Config dependencies menu" "- Install polikit, etc..." \
+              "2 Config dependencies menu" "- Install polkit, etc..." \
               3>&1 1>&2 2>&3)
 
         RET=$?
@@ -236,8 +238,7 @@ do_i3_menu() {
 
         case $FUN in
             1\ *) do_i3_install ;;
-            2\ *) do_applets_install ;;
-            3\ *) do_i3_config_dependencies_menu ;;
+            2\ *) do_i3_config_dependencies_menu ;;
         esac
     done
 }
