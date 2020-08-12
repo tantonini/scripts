@@ -229,13 +229,17 @@ do_multimedia_menu() {
         FUN=$(whiptail --title "System Configuration" --menu "Multimedia setup" \
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
-              "1 dummy" "- dummy" \
+              "1 Spotify" "- Install Spotify" \
               3>&1 1>&2 2>&3)
 
         RET=$?
         if [ $RET -eq 1 ]; then
             return 0
         fi
+
+        case $FUN in
+            1\ *) do_spotify_install ;;
+        esac
     done
 }
 
@@ -343,6 +347,32 @@ do_nvim_vim_plug_install() {
 
     whiptail --title "System Configuration" --msgbox "Vim plug installed on the system" \
     "$WT_HEIGHT" "$WT_WIDTH"
+}
+
+do_spotify_install() {
+    if command -v spotify; then
+        whiptail --title "System Configuration" --msgbox "Spotify is already installed" \
+        "$WT_HEIGHT" "$WT_WIDTH"
+
+        return 0
+    fi
+
+    if ! command -v curl; then
+        sudo apt-get install -y curl
+    fi
+
+    if ! grep "deb http://repository.spotify.com stable non-free" /etc/apt/sources.list.d/spotify.list > /dev/null; then
+        curl -sS https://download.spotify.com/debian/pubkey.gpg | sudo apt-key add -
+        echo "deb http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
+    fi
+
+    sudo apt-get update
+    sudo apt-get install -y spotify-client
+
+    if [ $RET -eq 0 ]; then
+        whiptail --title "System Configuration" --msgbox "Spotify installed" \
+        "$WT_HEIGHT" "$WT_WIDTH"
+    fi
 }
 
 do_terminal_menu() {
