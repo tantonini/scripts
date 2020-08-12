@@ -193,6 +193,7 @@ do_i3_config_dependencies_menu() {
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
               "1 Install applets" "- Install system tray applets" \
+              "2 Install polkit" "- Install gnome policy kit" \
               3>&1 1>&2 2>&3)
 
         RET=$?
@@ -202,6 +203,7 @@ do_i3_config_dependencies_menu() {
 
         case $FUN in
             1\ *) do_applets_install ;;
+            2\ *) do_polkit_gnome_install ;;
         esac
     done
 }
@@ -366,6 +368,25 @@ do_nvim_vim_plug_install() {
 
     whiptail --title "System Configuration" --msgbox "Vim plug installed on the system" \
     "$WT_HEIGHT" "$WT_WIDTH"
+}
+
+do_polkit_gnome_install() {
+    if [ -f /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1 ]; then
+        whiptail --title "System Configuration" --msgbox "Polkit gnome authentication agent already installed" \
+        "$WT_HEIGHT" "$WT_WIDTH"
+
+        return 0
+    fi
+
+    sudo apt-get install -y policykit-1-gnome
+
+    if [ $RET -eq 0 ];then
+        whiptail --title "System Configuration" --msgbox "Polkit gnome authentication agent installed" \
+        "$WT_HEIGHT" "$WT_WIDTH"
+    else
+        whiptail --title "System Configuration" --msgbox "ERROR: Cannot install polkit gnome authentication agent" \
+        "$WT_HEIGHT" "$WT_WIDTH"
+    fi
 }
 
 do_spotify_install() {
