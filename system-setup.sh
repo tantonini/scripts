@@ -96,6 +96,17 @@ do_alacritty_menu() {
     done
 }
 
+do_applets_install() {
+    if ! command -v volumeicon; then
+        echo ""
+        echo "Install volumeicon applet"
+        sudo apt-get install -y volumeicon-alsa
+    fi
+
+    whiptail --title "System Configuration" --msgbox "System tray applets installed" \
+    "$WT_HEIGHT" "$WT_WIDTH"
+}
+
 do_dotfiles_git_bare() {
     if ! command -v dotfiles; then
         echo "alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'" >> "$HOME"/.bash_aliases
@@ -198,6 +209,7 @@ do_i3_menu() {
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
               "1 Install" "- Install i3-gaps" \
+              "2 Install applets" "- Install system tray applets" \
               3>&1 1>&2 2>&3)
 
         RET=$?
@@ -207,6 +219,7 @@ do_i3_menu() {
 
         case $FUN in
             1\ *) do_i3_install ;;
+            2\ *) do_applets_install ;;
         esac
     done
 }
