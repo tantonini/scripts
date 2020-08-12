@@ -237,6 +237,7 @@ do_nvim_menu() {
               --cancel-button Return --ok-button Select -- \
               "1 Install nvim" "- Install neovim editor" \
               "2 Install vim plug" "- Install neovim plugin manager" \
+              "3 Optimize nvim" "- Install neovim checkhealth + vimrc required packages" \
               3>&1 1>&2 2>&3)
 
         RET=$?
@@ -247,8 +248,58 @@ do_nvim_menu() {
         case $FUN in
             1\ *) do_nvim_install ;;
             2\ *) do_nvim_vim_plug_install ;;
+            3\ *) do_nvim_optimize ;;
         esac
     done
+}
+
+do_nvim_optimize() {
+    if ! [ "$(command -v xclip)" ]; then
+        sudo apt-get install -y xclip
+    fi
+
+    if ! [ "$(command -v pip3)" ]; then
+        sudo apt-get install -y python3-pip
+    fi
+
+    if ! [ "$(python3 -m pip show pynvim)" ]; then
+        python3 -m pip install --user --upgrade pynvim
+    fi
+
+    if ! [ "$(command -v node)" ]; then
+        sudo apt-get install -y nodejs
+    fi
+
+    if ! [ "$(command -v npm)" ]; then
+        sudo apt-get install -y npm
+    fi
+
+    if ! [ "$(command -v neovim-node-host)" ]; then
+        sudo npm install -g neovim
+    fi
+
+    if ! [ "$(command -v ruby)" ]; then
+        sudo apt-get install -y ruby-dev
+    fi
+
+    if ! [ "$(command -v gem)" ]; then
+        sudo apt-get install -y gem
+    fi
+
+    if ! gem list --local | grep -q neovim; then
+        sudo gem install neovim
+    fi
+
+    if ! [ "$(command -v ccls)" ]; then
+        sudo apt-get install -y ccls
+    fi
+
+    if ! [ "$(command -v bash-language-server)" ]; then
+        sudo npm i -g bash-language-server
+    fi
+
+    whiptail --title "System configuration" --msgbox "Nvim optimized" \
+    "$WT_HEIGHT" "$WT_WIDTH"
 }
 
 do_nvim_vim_plug_install() {
