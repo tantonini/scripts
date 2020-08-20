@@ -107,6 +107,25 @@ do_applets_install() {
     "$WT_HEIGHT" "$WT_WIDTH"
 }
 
+do_disk_tools_menu() {
+    while true; do
+        FUN=$(whiptail --title "System Configuration" --menu "Disk tools menu" \
+              "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
+              --cancel-button Return --ok-button Select -- \
+              "1 udiskie" "- Install udiskie" \
+              3>&1 1>&2 2>&3)
+
+        RET=$?
+        if [ $RET -eq 1 ]; then
+            return 0
+        fi
+
+        case $FUN in
+            1\ *) do_udiskie_install ;;
+        esac
+    done
+}
+
 do_dotfiles_git_bare() {
     if ! command -v dotfiles; then
         echo "alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'" >> "$HOME"/.bash_aliases
@@ -434,13 +453,28 @@ do_terminal_menu() {
     done
 }
 
+do_udiskie_install() {
+    if command -v udiskie; then
+        whiptail --title "System Configuration" --msgbox "Udiskie is already installed on the system" \
+        "$WT_HEIGHT" "$WT_WIDTH"
+
+        return 0
+    fi
+
+    echo "Install udiskie"
+    sudo apt-get install -y udiskie
+    whiptail --title "System Configuration" --msgbox "Udiskie installed" \
+    "$WT_HEIGHT" "$WT_WIDTH"
+}
+
 do_utilities_menu() {
     while true; do
         FUN=$(whiptail --title "System Configuration" --menu "Utilities setup" \
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
-              "1 Editors" "- Install and config editors" \
-              "2 Terminal" "- Install and config terminal emulators" \
+              "1 Disk tools" "- Install and config disk tools" \
+              "2 Editors" "- Install and config editors" \
+              "3 Terminal" "- Install and config terminal emulators" \
               3>&1 1>&2 2>&3)
 
         RET=$?
@@ -449,8 +483,9 @@ do_utilities_menu() {
         fi
 
         case $FUN in
-            1\ *) do_editors_menu ;;
-            2\ *) do_terminal_menu ;;
+            1\ *) do_disk_tools_menu ;;
+            2\ *) do_editors_menu ;;
+            3\ *) do_terminal_menu ;;
         esac
     done
 }
