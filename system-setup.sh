@@ -127,10 +127,6 @@ do_disk_tools_menu() {
 }
 
 do_dotfiles_git_bare() {
-    if ! command -v dotfiles; then
-        echo "alias dotfiles='/usr/bin/git --git-dir=$HOME/.dotfiles/ --work-tree=$HOME'" >> "$HOME"/.bash_aliases
-    fi
-
     if [ -d "$HOME"/.dotfiles ]; then
         whiptail --title "System Configuration" --msgbox "Dotfiles repository is already configured" \
         "$WT_HEIGHT" "$WT_WIDTH"
