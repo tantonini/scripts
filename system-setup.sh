@@ -170,6 +170,7 @@ do_editors_menu() {
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
               "1 nvim" "- Install and configure neovim" \
+              "2 vim" "- Configure vim" \
               3>&1 1>&2 2>&3)
 
         RET=$?
@@ -179,6 +180,7 @@ do_editors_menu() {
 
         case $FUN in
             1\ *) do_nvim_menu ;;
+            2\ *) do_vim_menu ;;
         esac
     done
 }
@@ -482,6 +484,47 @@ do_utilities_menu() {
             1\ *) do_disk_tools_menu ;;
             2\ *) do_editors_menu ;;
             3\ *) do_terminal_menu ;;
+        esac
+    done
+}
+
+do_vim_default() {
+    if ! command -v vim > /dev/null; then
+        whiptail --title "System Configuration" --msgbox "Please first install vim on the system" \
+        "$WT_HEIGHT" "$WT_WIDTH"
+
+        return 1
+    fi
+
+    if [[ "$(readlink -f /usr/bin/editor)" == "/usr/bin/vim.basic" ]]; then
+        whiptail --title "System Configuration" --msgbox "Vim already set as default editor" \
+        "$WT_HEIGHT" "$WT_WIDTH"
+
+        return 0
+    else
+        sudo update-alternatives --set editor /usr/bin/vim.basic
+        whiptail --title "System Configuration" --msgbox "Vim set as default editor" \
+        "$WT_HEIGHT" "$WT_WIDTH"
+
+        return 0
+    fi
+}
+
+do_vim_menu() {
+    while true; do
+        FUN=$(whiptail --title "System Configuration" --menu "Vim menu" \
+              "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
+              --cancel-button Return --ok-button Select -- \
+              "1 Vim default" "- Set vim as default editor" \
+              3>&1 1>&2 2>&3)
+
+        RET=$?
+        if [ $RET -eq 1 ]; then
+            return 0
+        fi
+
+        case $FUN in
+            1\ *) do_vim_default ;;
         esac
     done
 }
