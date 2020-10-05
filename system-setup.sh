@@ -185,6 +185,17 @@ do_editors_menu() {
     done
 }
 
+do_feh_install() {
+    if ! command -v feh; then
+        echo ""
+        echo "Install feh"
+        sudo apt-get install -y feh
+    fi
+
+    whiptail --title "System Configuration" --msgbox "Feh installed" \
+    "$WT_HEIGHT" "$WT_WIDTH"
+}
+
 do_gui_menu() {
     while true; do
         FUN=$(whiptail --title "System Configuration" --menu "Graphical user interface configuration" \
@@ -210,7 +221,8 @@ do_i3_config_dependencies_menu() {
               "$WT_HEIGHT" "$WT_WIDTH" "$WT_MENU_HEIGHT" \
               --cancel-button Return --ok-button Select -- \
               "1 Install applets" "- Install system tray applets" \
-              "2 Install polkit" "- Install gnome policy kit" \
+              "2 Install feh" "- Install image viewer for wallpaper" \
+              "3 Install polkit" "- Install gnome policy kit" \
               3>&1 1>&2 2>&3)
 
         RET=$?
@@ -220,7 +232,8 @@ do_i3_config_dependencies_menu() {
 
         case $FUN in
             1\ *) do_applets_install ;;
-            2\ *) do_polkit_gnome_install ;;
+            2\ *) do_feh_install ;;
+            3\ *) do_polkit_gnome_install ;;
         esac
     done
 }
