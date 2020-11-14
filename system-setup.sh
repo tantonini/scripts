@@ -2,6 +2,7 @@
 
 REALPATH="$(readlink -e "$0")"
 BASEDIR="$(dirname "${REALPATH}")"
+DISTRO="$(grep -w "NAME=" /etc/os-release | awk -F= -F\" '{ print $2 }')"
 
 WT_HEIGHT=40
 WT_WIDTH=120
@@ -246,9 +247,13 @@ do_i3_install() {
         return 0
     fi
 
-    sudo add-apt-repository -y ppa:kgilmer/speed-ricer
-    sudo apt update
-    sudo apt-get install -y i3-gaps
+    if [ "$DISTRO" == "Arch Linux" ]; then
+        sudo pacman -S i3-gaps i3status dmenu
+    elif [ "$DISTRO" == "Ubuntu" ]; then
+        sudo add-apt-repository -y ppa:kgilmer/speed-ricer
+        sudo apt update
+        sudo apt-get install -y i3-gaps
+    fi
 
     whiptail --title "System Configuration" --msgbox "i3-gaps installed on the system" \
     "$WT_HEIGHT" "$WT_WIDTH"
